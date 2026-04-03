@@ -36,4 +36,5 @@ export interface UserFormValues {
   email: string;
   role: UserRole;
   status: UserStatus;
+  security: UserSecuritySettings;
 }

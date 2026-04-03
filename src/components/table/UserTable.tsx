@@ -32,12 +32,12 @@ export default function UserTable({ users, onEdit }: UserTableProps) {
       <table className="user-table">
         <thead>
           <tr>
-            <th aria-label="Expand row" />
+            <th style={{ width: 72 }}>View</th>
             <th>Name</th>
             <th>Email</th>
             <th>Role</th>
             <th>Status</th>
-            <th>Actions</th>
+            <th style={{ width: 120 }}>Actions</th>
           </tr>
         </thead>
 
@@ -61,11 +61,8 @@ export default function UserTable({ users, onEdit }: UserTableProps) {
                       }
                       title={isExpanded ? 'Collapse details' : 'Expand details'}
                     >
-                      <span
-                        className={`expand-icon ${isExpanded ? 'expanded' : ''}`}
-                        aria-hidden="true"
-                      >
-                        <svg viewBox="0 0 20 20" fill="none">
+                      <span className={`expand-icon ${isExpanded ? 'expanded' : ''}`}>
+                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
                           <path
                             d="M5 7.5L10 12.5L15 7.5"
                             stroke="currentColor"
@@ -77,7 +74,6 @@ export default function UserTable({ users, onEdit }: UserTableProps) {
                       </span>
                     </button>
                   </td>
-
                   <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td>{user.role}</td>
@@ -95,13 +91,13 @@ export default function UserTable({ users, onEdit }: UserTableProps) {
                   </td>
                 </tr>
 
-                {isExpanded ? (
+                {isExpanded && (
                   <tr className="detail-row">
                     <td colSpan={6}>
                       <UserDetailPanel details={user.details} />
                     </td>
                   </tr>
-                ) : null}
+                )}
               </Fragment>
             );
           })}

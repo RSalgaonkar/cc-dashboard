@@ -4,6 +4,7 @@ interface UserToolbarProps {
   searchTerm: string;
   selectedRole: string;
   selectedStatus: string;
+  appliedSearchTerm: string;
   onSearchChange: (value: string) => void;
   onRoleChange: (value: string) => void;
   onStatusChange: (value: string) => void;
@@ -17,21 +18,29 @@ export default function UserToolbar({
   searchTerm,
   selectedRole,
   selectedStatus,
+  appliedSearchTerm,
   onSearchChange,
   onRoleChange,
   onStatusChange,
   onAddUser,
 }: UserToolbarProps) {
+  const isPending = searchTerm !== appliedSearchTerm;
+
   return (
     <div className="toolbar">
       <div className="toolbar-filters">
-        <input
-          type="text"
-          placeholder="Search by name or email"
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="input"
-        />
+        <div className="search-group">
+          <input
+            type="text"
+            placeholder="Search by name or email"
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="input"
+          />
+          <span className="search-meta">
+            {isPending ? 'Applying throttled search...' : 'Search synced'}
+          </span>
+        </div>
 
         <select
           value={selectedRole}

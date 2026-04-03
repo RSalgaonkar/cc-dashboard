@@ -1,6 +1,15 @@
 import { UserFormValues } from '../types/user';
 
-export type UserFormErrors = Partial<Record<keyof UserFormValues, string>>;
+export type UserFormErrors = {
+  name?: string;
+  email?: string;
+  role?: string;
+  status?: string;
+  security?: {
+    passwordAgeDays?: string;
+    lastPasswordUpdate?: string;
+  };
+};
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -23,6 +32,20 @@ export function validateUser(values: UserFormValues): UserFormErrors {
 
   if (!values.status) {
     errors.status = 'Status is required';
+  }
+
+  if (values.security.passwordAgeDays < 0) {
+    errors.security = {
+      ...(errors.security ?? {}),
+      passwordAgeDays: 'Password age cannot be negative',
+    };
+  }
+
+  if (!String(values.security.lastPasswordUpdate).trim()) {
+    errors.security = {
+      ...(errors.security ?? {}),
+      lastPasswordUpdate: 'Last password update is required',
+    };
   }
 
   return errors;

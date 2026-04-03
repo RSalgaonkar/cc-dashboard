@@ -5,7 +5,9 @@ interface StatusBadgeProps {
 }
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
-  const className = `status-badge status-${status.toLowerCase()}`;
-
-  return <span className={className}>{status}</span>;
+  return (
+    <span className={`status-badge status-${status.toLowerCase()}`}>
+      {status}
+    </span>
+  );
 }

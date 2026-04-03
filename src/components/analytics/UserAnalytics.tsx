@@ -12,12 +12,12 @@ type MetricItem = {
   colorClass: string;
 };
 
-function percent(value: number, total: number) {
+function percentage(value: number, total: number) {
   if (total === 0) return 0;
   return Math.round((value / total) * 100);
 }
 
-function BarSection({
+function BarGroup({
   title,
   items,
   total,
@@ -35,7 +35,7 @@ function BarSection({
 
       <div className="analytics-bar-list">
         {items.map((item) => {
-          const width = percent(item.value, total);
+          const width = percentage(item.value, total);
 
           return (
             <div key={item.label} className="analytics-bar-row">
@@ -77,9 +77,8 @@ export default function UserAnalytics({
       Pending: 0,
     };
 
-    let twoFactorEnabled = 0;
-    let loginAlertsEnabled = 0;
-    let stalePasswords = 0;
+    let twoFactorEnabledCount = 0;
+    let loginAlertsEnabledCount = 0;
     let totalActivityLogs = 0;
 
     users.forEach((user) => {
@@ -88,28 +87,20 @@ export default function UserAnalytics({
       totalActivityLogs += user.details.activityLogs.length;
 
       if (user.details.security.twoFactorEnabled) {
-        twoFactorEnabled += 1;
+        twoFactorEnabledCount += 1;
       }
 
       if (user.details.security.loginAlertsEnabled) {
-        loginAlertsEnabled += 1;
-      }
-
-      if (user.details.security.passwordAgeDays > 60) {
-        stalePasswords += 1;
+        loginAlertsEnabledCount += 1;
       }
     });
 
     return {
       visibleUsers: users.length,
-      activeUsers: statusCounts.Active,
-      pendingUsers: statusCounts.Pending,
-      inactiveUsers: statusCounts.Inactive,
-      twoFactorEnabled,
-      loginAlertsEnabled,
-      stalePasswords,
+      activeCount: statusCounts.Active,
+      pendingCount: statusCounts.Pending,
       totalActivityLogs,
-      avgActivity:
+      averageActivityPerUser:
         users.length > 0 ? (totalActivityLogs / users.length).toFixed(1) : '0.0',
       roleItems: [
         { label: 'Admin', value: roleCounts.Admin, colorClass: 'bar-admin' },
@@ -122,9 +113,16 @@ export default function UserAnalytics({
         { label: 'Inactive', value: statusCounts.Inactive, colorClass: 'bar-inactive' },
       ],
       securityItems: [
-        { label: '2FA Enabled', value: twoFactorEnabled, colorClass: 'bar-secure' },
-        { label: 'Login Alerts', value: loginAlertsEnabled, colorClass: 'bar-alerts' },
-        { label: 'Stale Passwords', value: stalePasswords, colorClass: 'bar-stale' },
+        {
+          label: '2FA Enabled',
+          value: twoFactorEnabledCount,
+          colorClass: 'bar-secure',
+        },
+        {
+          label: 'Login Alerts',
+          value: loginAlertsEnabledCount,
+          colorClass: 'bar-alerts',
+        },
       ],
     };
   }, [users]);
@@ -140,23 +138,19 @@ export default function UserAnalytics({
 
         <article className="kpi-card">
           <span className="kpi-label">Active Accounts</span>
-          <strong className="kpi-value">{analytics.activeUsers}</strong>
-          <span className="kpi-meta">Currently active users in this view</span>
+          <strong className="kpi-value">{analytics.activeCount}</strong>
+          <span className="kpi-meta">Filtered dataset status count</span>
         </article>
 
         <article className="kpi-card">
-          <span className="kpi-label">2FA Coverage</span>
-          <strong className="kpi-value">
-            {percent(analytics.twoFactorEnabled, analytics.visibleUsers)}%
-          </strong>
-          <span className="kpi-meta">
-            {analytics.twoFactorEnabled} users have 2FA enabled
-          </span>
+          <span className="kpi-label">Pending Reviews</span>
+          <strong className="kpi-value">{analytics.pendingCount}</strong>
+          <span className="kpi-meta">Accounts needing follow-up</span>
         </article>
 
         <article className="kpi-card">
           <span className="kpi-label">Avg Activity</span>
-          <strong className="kpi-value">{analytics.avgActivity}</strong>
+          <strong className="kpi-value">{analytics.averageActivityPerUser}</strong>
           <span className="kpi-meta">
             {analytics.totalActivityLogs} recent logs in current view
           </span>
@@ -164,20 +158,18 @@ export default function UserAnalytics({
       </div>
 
       <div className="analytics-grid">
-        <BarSection
+        <BarGroup
           title="Users by Role"
           items={analytics.roleItems}
           total={analytics.visibleUsers}
         />
-
-        <BarSection
+        <BarGroup
           title="Users by Status"
           items={analytics.statusItems}
           total={analytics.visibleUsers}
         />
-
-        <BarSection
-          title="Security Overview"
+        <BarGroup
+          title="Security Coverage"
           items={analytics.securityItems}
           total={analytics.visibleUsers}
         />

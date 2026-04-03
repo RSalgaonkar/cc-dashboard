@@ -5,14 +5,11 @@ interface UserDetailPanelProps {
 }
 
 function ActivityTypeBadge({ type }: { type: UserActivityLog['type'] }) {
-  const classNameMap: Record<UserActivityLog['type'], string> = {
-    Login: 'activity-badge activity-login',
-    Update: 'activity-badge activity-update',
-    Security: 'activity-badge activity-security',
-    Profile: 'activity-badge activity-profile',
-  };
-
-  return <span className={classNameMap[type]}>{type}</span>;
+  return (
+    <span className={`activity-badge activity-${type.toLowerCase()}`}>
+      {type}
+    </span>
+  );
 }
 
 export default function UserDetailPanel({ details }: UserDetailPanelProps) {

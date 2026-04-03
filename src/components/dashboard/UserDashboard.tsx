@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { mockUsers } from '../../data/mockUsers';
 import { User, UserFormValues } from '../../types/user';
-import UserToolbar from '../toolbar/UserToolbar';
-import UserTable from '../table/UserTable';
-import UserFormModal from '../form/UserFormModal';
+import useThrottle from '../../hooks/useThrottle';
 import UserAnalytics from '../analytics/UserAnalytics';
+import UserFormModal from '../form/UserFormModal';
+import UserTable from '../table/UserTable';
+import UserToolbar from '../toolbar/UserToolbar';
 
 export default function UserDashboard() {
   const [users, setUsers] = useState<User[]>(mockUsers);
@@ -14,8 +15,10 @@ export default function UserDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
 
+  const throttledSearchTerm = useThrottle(searchTerm, 350);
+
   const filteredUsers = useMemo(() => {
-    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const normalizedSearch = throttledSearchTerm.trim().toLowerCase();
 
     return users.filter((user) => {
       const matchesSearch =
@@ -29,7 +32,7 @@ export default function UserDashboard() {
 
       return matchesSearch && matchesRole && matchesStatus;
     });
-  }, [users, searchTerm, selectedRole, selectedStatus]);
+  }, [users, throttledSearchTerm, selectedRole, selectedStatus]);
 
   const handleAddUser = () => {
     setEditUser(null);
@@ -48,7 +51,17 @@ export default function UserDashboard() {
           user.id === editUser.id
             ? {
                 ...user,
-                ...values,
+                name: values.name,
+                email: values.email,
+                role: values.role,
+                status: values.status,
+                details: {
+                  ...user.details,
+                  security: {
+                    ...user.details.security,
+                    ...values.security,
+                  },
+                },
               }
             : user
         )
@@ -58,16 +71,19 @@ export default function UserDashboard() {
 
     const newUser: User = {
       id: crypto.randomUUID(),
-      ...values,
+      name: values.name,
+      email: values.email,
+      role: values.role,
+      status: values.status,
       details: {
         activityLogs: [],
         groups: [],
         departments: [],
         security: {
-          twoFactorEnabled: false,
-          passwordAgeDays: 0,
-          lastPasswordUpdate: 'Not updated yet',
-          loginAlertsEnabled: false,
+          twoFactorEnabled: values.security.twoFactorEnabled,
+          passwordAgeDays: values.security.passwordAgeDays,
+          lastPasswordUpdate: values.security.lastPasswordUpdate,
+          loginAlertsEnabled: values.security.loginAlertsEnabled,
         },
       },
     };
@@ -75,17 +91,26 @@ export default function UserDashboard() {
     setUsers((prev) => [newUser, ...prev]);
   };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditUser(null);
+  };
+
   return (
     <div className="dashboard-shell">
       <header className="page-header">
         <h1>User Management Dashboard</h1>
-        <p>Manage users, review status, and monitor access analytics.</p>
+        <p>
+          Manage users, monitor account health, and review security and activity
+          trends.
+        </p>
       </header>
 
       <UserToolbar
         searchTerm={searchTerm}
         selectedRole={selectedRole}
         selectedStatus={selectedStatus}
+        appliedSearchTerm={throttledSearchTerm}
         onSearchChange={setSearchTerm}
         onRoleChange={setSelectedRole}
         onStatusChange={setSelectedStatus}
@@ -99,10 +124,7 @@ export default function UserDashboard() {
       <UserFormModal
         isOpen={isModalOpen}
         editUser={editUser}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditUser(null);
-        }}
+        onClose={handleCloseModal}
         onSave={handleSaveUser}
       />
     </div>
