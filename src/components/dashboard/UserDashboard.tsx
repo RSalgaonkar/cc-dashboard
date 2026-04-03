@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { mockUsers } from '../../data/mockUsers';
 import { User, UserFormValues } from '../../types/user';
 import { Taxi } from '../../types/taxi';
+import { Hotel } from '../../types/hotel';
+import { AlcoholProduct } from '../../types/alcohol';
 import UserToolbar from '../toolbar/UserToolbar';
 import UserTable from '../table/UserTable';
 import UserFormModal from '../form/UserFormModal';
@@ -81,7 +83,7 @@ export default function UserDashboard() {
   const filteredTaxis = useMemo(() => {
     const query = throttledTaxiSearch.trim().toLowerCase();
 
-    return mockTaxis.filter((taxi) => {
+    return mockTaxis.filter((taxi: Taxi) => {
       if (!query) return true;
       return getTaxiSearchText(taxi).includes(query);
     });
@@ -90,7 +92,7 @@ export default function UserDashboard() {
   const filteredHotels = useMemo(() => {
     const query = throttledHotelSearch.trim().toLowerCase();
 
-    return mockHotels.filter((hotel) => {
+    return mockHotels.filter((hotel: Hotel) => {
       if (!query) return true;
 
       return (
@@ -250,7 +252,7 @@ export default function UserDashboard() {
           </div>
 
           <div className="listing-grid">
-            {filteredHotels.map((hotel) => (
+            {filteredHotels.map((hotel: Hotel) => (
               <article key={hotel.id} className="listing-card">
                 <div className="listing-card-header">
                   <h3>{hotel.name}</h3>
@@ -316,7 +318,7 @@ export default function UserDashboard() {
         </div>
 
         <div className="alcohol-grid">
-          {filteredAlcoholProducts.map((item) => (
+          {filteredAlcoholProducts.map((item: AlcoholProduct) => (
             <article key={item.id} className="alcohol-card">
               <div className="alcohol-card-glow" />
 

@@ -3,7 +3,7 @@ import { Taxi } from '../types/taxi';
 export const mockTaxis: Taxi[] = [
   {
     id: 'taxi-1',
-    taxiName: 'Laxmi',
+    taxiName: 'Laxmi Service',
     availability: 'Available',
     driver: {
       name: 'Sushant Salgaonkar',
