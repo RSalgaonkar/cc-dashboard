@@ -6,6 +6,7 @@ import type { UserFormErrors } from '../../utils/validation';
 interface UserFormModalProps {
   isOpen: boolean;
   editUser: User | null;
+  users: User[];
   onClose: () => void;
   onSave: (values: UserFormValues) => void;
 }
@@ -20,6 +21,7 @@ const initialValues: UserFormValues = {
 export default function UserFormModal({
   isOpen,
   editUser,
+  users,
   onClose,
   onSave,
 }: UserFormModalProps) {
@@ -37,93 +39,99 @@ export default function UserFormModal({
     } else {
       setFormValues(initialValues);
     }
+
     setErrors({});
   }, [editUser, isOpen]);
 
   if (!isOpen) return null;
 
-  const handleChange = <K extends keyof UserFormValues>(field: K, value: UserFormValues[K]) => {
+  const handleChange = <K extends keyof UserFormValues>(
+    field: K,
+    value: UserFormValues[K]
+  ) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: '' }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const validationErrors = validateUser(formValues);
+
+    const validationErrors = validateUser(formValues, {
+      existingUsers: users,
+      editingUserId: editUser?.id ?? null,
+    });
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
-    onSave(formValues);
+    onSave({
+      ...formValues,
+      email: formValues.email.trim().toLowerCase(),
+      name: formValues.name.trim(),
+    });
     onClose();
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal">
+    <div className="modal-backdrop">
+      <div className="modal-card" role="dialog" aria-modal="true" aria-labelledby="user-form-title">
         <div className="modal-header">
-          <h2>{editUser ? 'Edit User' : 'Add User'}</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Close modal">
+          <h2 id="user-form-title">{editUser ? 'Edit User' : 'Add User'}</h2>
+          <button type="button" onClick={onClose} aria-label="Close modal">
             ×
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="user-form">
-          <div className="form-group">
-            <label htmlFor="name">Name</label>
+        <form onSubmit={handleSubmit} className="form-grid">
+          <label>
+            Name
             <input
-              id="name"
-              type="text"
-              className="input"
               value={formValues.name}
               onChange={(e) => handleChange('name', e.target.value)}
             />
-            {errors.name && <span className="error-text">{errors.name}</span>}
-          </div>
+            {errors.name && <span className="field-error">{errors.name}</span>}
+          </label>
 
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
+          <label>
+            Email
             <input
-              id="email"
-              type="email"
-              className="input"
               value={formValues.email}
               onChange={(e) => handleChange('email', e.target.value)}
             />
-            {errors.email && <span className="error-text">{errors.email}</span>}
-          </div>
+            {errors.email && <span className="field-error">{errors.email}</span>}
+          </label>
 
-          <div className="form-group">
-            <label htmlFor="role">Role</label>
+          <label>
+            Role
             <select
-              id="role"
-              className="select"
               value={formValues.role}
-              onChange={(e) => handleChange('role', e.target.value as UserFormValues['role'])}
+              onChange={(e) =>
+                handleChange('role', e.target.value as UserFormValues['role'])
+              }
             >
               <option value="Admin">Admin</option>
               <option value="Editor">Editor</option>
               <option value="Viewer">Viewer</option>
             </select>
-            {errors.role && <span className="error-text">{errors.role}</span>}
-          </div>
+            {errors.role && <span className="field-error">{errors.role}</span>}
+          </label>
 
-          <div className="form-group">
-            <label htmlFor="status">Account Status</label>
+          <label>
+            Account Status
             <select
-              id="status"
-              className="select"
               value={formValues.status}
-              onChange={(e) => handleChange('status', e.target.value as UserFormValues['status'])}
+              onChange={(e) =>
+                handleChange('status', e.target.value as UserFormValues['status'])
+              }
             >
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
               <option value="Pending">Pending</option>
             </select>
-            {errors.status && <span className="error-text">{errors.status}</span>}
-          </div>
+            {errors.status && <span className="field-error">{errors.status}</span>}
+          </label>
 
           <div className="form-actions">
             <button type="button" className="secondary-btn" onClick={onClose}>

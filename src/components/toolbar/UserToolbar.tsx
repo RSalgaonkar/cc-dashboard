@@ -4,34 +4,43 @@ interface UserToolbarProps {
   searchTerm: string;
   selectedRole: string;
   selectedStatus: string;
+  appliedSearchTerm: string;
   onSearchChange: (value: string) => void;
   onRoleChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onAddUser: () => void;
 }
 
-const roles: Array<UserRole | 'All'> = ['All', 'Admin', 'Editor', 'Viewer'];
-const statuses: Array<UserStatus | 'All'> = ['All', 'Active', 'Inactive', 'Pending'];
+const roles: Array<'All' | UserRole> = ['All', 'Admin', 'Editor', 'Viewer'];
+const statuses: Array<'All' | UserStatus> = ['All', 'Active', 'Inactive', 'Pending'];
 
 export default function UserToolbar({
   searchTerm,
   selectedRole,
   selectedStatus,
+  appliedSearchTerm,
   onSearchChange,
   onRoleChange,
   onStatusChange,
   onAddUser,
 }: UserToolbarProps) {
+  const isThrottlePending = searchTerm !== appliedSearchTerm;
+
   return (
     <div className="toolbar">
       <div className="toolbar-filters">
-        <input
-          type="text"
-          placeholder="Search by name or email"
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="input"
-        />
+        <div className="search-group">
+          <input
+            type="text"
+            placeholder="Search by name or email"
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="input"
+          />
+          <span className="search-meta">
+            {isThrottlePending ? 'Applying search...' : 'Search synced'}
+          </span>
+        </div>
 
         <select
           value={selectedRole}
@@ -58,7 +67,7 @@ export default function UserToolbar({
         </select>
       </div>
 
-      <button className="primary-btn" onClick={onAddUser}>
+      <button type="button" className="primary-btn" onClick={onAddUser}>
         Add User
       </button>
     </div>
