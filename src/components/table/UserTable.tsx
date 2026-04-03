@@ -32,14 +32,15 @@ export default function UserTable({ users, onEdit }: UserTableProps) {
       <table className="user-table">
         <thead>
           <tr>
-            <th aria-label="Expand row"></th>
+            <th aria-label="Expand row" />
             <th>Name</th>
             <th>Email</th>
             <th>Role</th>
             <th>Status</th>
-            <th aria-label="Actions">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
+
         <tbody>
           {users.map((user) => {
             const isExpanded = !!expandedRows[user.id];
@@ -53,15 +54,22 @@ export default function UserTable({ users, onEdit }: UserTableProps) {
                       className={`expand-btn ${isExpanded ? 'is-open' : ''}`}
                       onClick={() => toggleRow(user.id)}
                       aria-expanded={isExpanded}
-                      aria-label={isExpanded ? `Collapse details for ${user.name}` : `Expand details for ${user.name}`}
+                      aria-label={
+                        isExpanded
+                          ? `Collapse details for ${user.name}`
+                          : `Expand details for ${user.name}`
+                      }
                       title={isExpanded ? 'Collapse details' : 'Expand details'}
                     >
-                      <span className={`expand-icon ${isExpanded ? 'expanded' : ''}`} aria-hidden="true">
+                      <span
+                        className={`expand-icon ${isExpanded ? 'expanded' : ''}`}
+                        aria-hidden="true"
+                      >
                         <svg viewBox="0 0 20 20" fill="none">
                           <path
-                            d="M6 8l4 4 4-4"
+                            d="M5 7.5L10 12.5L15 7.5"
                             stroke="currentColor"
-                            strokeWidth="2"
+                            strokeWidth="1.8"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           />
@@ -69,6 +77,7 @@ export default function UserTable({ users, onEdit }: UserTableProps) {
                       </span>
                     </button>
                   </td>
+
                   <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td>{user.role}</td>
@@ -76,19 +85,23 @@ export default function UserTable({ users, onEdit }: UserTableProps) {
                     <StatusBadge status={user.status} />
                   </td>
                   <td>
-                    <button className="secondary-btn" onClick={() => onEdit(user)}>
+                    <button
+                      type="button"
+                      className="secondary-btn"
+                      onClick={() => onEdit(user)}
+                    >
                       Edit
                     </button>
                   </td>
                 </tr>
 
-                {isExpanded && (
+                {isExpanded ? (
                   <tr className="detail-row">
                     <td colSpan={6}>
                       <UserDetailPanel details={user.details} />
                     </td>
                   </tr>
-                )}
+                ) : null}
               </Fragment>
             );
           })}

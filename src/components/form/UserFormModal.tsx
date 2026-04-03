@@ -6,7 +6,6 @@ import type { UserFormErrors } from '../../utils/validation';
 interface UserFormModalProps {
   isOpen: boolean;
   editUser: User | null;
-  users: User[];
   onClose: () => void;
   onSave: (values: UserFormValues) => void;
 }
@@ -21,7 +20,6 @@ const initialValues: UserFormValues = {
 export default function UserFormModal({
   isOpen,
   editUser,
-  users,
   onClose,
   onSave,
 }: UserFormModalProps) {
@@ -29,6 +27,8 @@ export default function UserFormModal({
   const [errors, setErrors] = useState<UserFormErrors>({});
 
   useEffect(() => {
+    if (!isOpen) return;
+
     if (editUser) {
       setFormValues({
         name: editUser.name,
@@ -53,59 +53,73 @@ export default function UserFormModal({
     setErrors((prev) => ({ ...prev, [field]: '' }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const validationErrors = validateUser(formValues, {
-      existingUsers: users,
-      editingUserId: editUser?.id ?? null,
-    });
+    const validationErrors = validateUser(formValues);
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
-    onSave({
-      ...formValues,
-      email: formValues.email.trim().toLowerCase(),
-      name: formValues.name.trim(),
-    });
-    onClose();
+    onSave(formValues);
   };
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-card" role="dialog" aria-modal="true" aria-labelledby="user-form-title">
+    <div
+      className="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="user-modal-title"
+      onClick={onClose}
+    >
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2 id="user-form-title">{editUser ? 'Edit User' : 'Add User'}</h2>
-          <button type="button" onClick={onClose} aria-label="Close modal">
+          <h2 id="user-modal-title">{editUser ? 'Edit User' : 'Add User'}</h2>
+
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label="Close modal"
+            onClick={onClose}
+          >
             ×
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="form-grid">
-          <label>
-            Name
+        <form className="user-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="user-name">Name</label>
             <input
+              id="user-name"
+              className="input"
+              type="text"
               value={formValues.name}
               onChange={(e) => handleChange('name', e.target.value)}
+              placeholder="Enter full name"
             />
-            {errors.name && <span className="field-error">{errors.name}</span>}
-          </label>
+            {errors.name ? <span className="error-text">{errors.name}</span> : null}
+          </div>
 
-          <label>
-            Email
+          <div className="form-group">
+            <label htmlFor="user-email">Email</label>
             <input
+              id="user-email"
+              className="input"
+              type="email"
               value={formValues.email}
               onChange={(e) => handleChange('email', e.target.value)}
+              placeholder="Enter email address"
             />
-            {errors.email && <span className="field-error">{errors.email}</span>}
-          </label>
+            {errors.email ? <span className="error-text">{errors.email}</span> : null}
+          </div>
 
-          <label>
-            Role
+          <div className="form-group">
+            <label htmlFor="user-role">Role</label>
             <select
+              id="user-role"
+              className="select"
               value={formValues.role}
               onChange={(e) =>
                 handleChange('role', e.target.value as UserFormValues['role'])
@@ -115,12 +129,14 @@ export default function UserFormModal({
               <option value="Editor">Editor</option>
               <option value="Viewer">Viewer</option>
             </select>
-            {errors.role && <span className="field-error">{errors.role}</span>}
-          </label>
+            {errors.role ? <span className="error-text">{errors.role}</span> : null}
+          </div>
 
-          <label>
-            Account Status
+          <div className="form-group">
+            <label htmlFor="user-status">Account Status</label>
             <select
+              id="user-status"
+              className="select"
               value={formValues.status}
               onChange={(e) =>
                 handleChange('status', e.target.value as UserFormValues['status'])
@@ -130,13 +146,16 @@ export default function UserFormModal({
               <option value="Inactive">Inactive</option>
               <option value="Pending">Pending</option>
             </select>
-            {errors.status && <span className="field-error">{errors.status}</span>}
-          </label>
+            {errors.status ? (
+              <span className="error-text">{errors.status}</span>
+            ) : null}
+          </div>
 
           <div className="form-actions">
             <button type="button" className="secondary-btn" onClick={onClose}>
               Cancel
             </button>
+
             <button type="submit" className="primary-btn">
               {editUser ? 'Update User' : 'Create User'}
             </button>

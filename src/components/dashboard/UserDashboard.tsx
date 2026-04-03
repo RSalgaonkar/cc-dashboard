@@ -5,7 +5,6 @@ import UserToolbar from '../toolbar/UserToolbar';
 import UserTable from '../table/UserTable';
 import UserFormModal from '../form/UserFormModal';
 import UserAnalytics from '../analytics/UserAnalytics';
-import useThrottle from '../../hooks/useThrottle';
 
 export default function UserDashboard() {
   const [users, setUsers] = useState<User[]>(mockUsers);
@@ -15,10 +14,8 @@ export default function UserDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
 
-  const throttledSearchTerm = useThrottle(searchTerm, 350);
-
   const filteredUsers = useMemo(() => {
-    const normalizedSearch = throttledSearchTerm.trim().toLowerCase();
+    const normalizedSearch = searchTerm.trim().toLowerCase();
 
     return users.filter((user) => {
       const matchesSearch =
@@ -32,7 +29,7 @@ export default function UserDashboard() {
 
       return matchesSearch && matchesRole && matchesStatus;
     });
-  }, [users, throttledSearchTerm, selectedRole, selectedStatus]);
+  }, [users, searchTerm, selectedRole, selectedStatus]);
 
   const handleAddUser = () => {
     setEditUser(null);
@@ -45,23 +42,14 @@ export default function UserDashboard() {
   };
 
   const handleSaveUser = (values: UserFormValues) => {
-    const normalizedEmail = values.email.trim().toLowerCase();
-
-    const duplicateExists = users.some(
-      (user) =>
-        user.email.trim().toLowerCase() === normalizedEmail &&
-        user.id !== editUser?.id
-    );
-
-    if (duplicateExists) {
-      return;
-    }
-
     if (editUser) {
       setUsers((prev) =>
         prev.map((user) =>
           user.id === editUser.id
-            ? { ...user, ...values, email: normalizedEmail }
+            ? {
+                ...user,
+                ...values,
+              }
             : user
         )
       );
@@ -71,7 +59,6 @@ export default function UserDashboard() {
     const newUser: User = {
       id: crypto.randomUUID(),
       ...values,
-      email: normalizedEmail,
       details: {
         activityLogs: [],
         groups: [],
@@ -92,9 +79,7 @@ export default function UserDashboard() {
     <div className="dashboard-shell">
       <header className="page-header">
         <h1>User Management Dashboard</h1>
-        <p>
-          Manage users, review account health, and monitor quick analytics.
-        </p>
+        <p>Manage users, review status, and monitor access analytics.</p>
       </header>
 
       <UserToolbar
@@ -105,7 +90,6 @@ export default function UserDashboard() {
         onRoleChange={setSelectedRole}
         onStatusChange={setSelectedStatus}
         onAddUser={handleAddUser}
-        appliedSearchTerm={throttledSearchTerm}
       />
 
       <UserAnalytics users={filteredUsers} totalUsers={users.length} />
@@ -115,14 +99,12 @@ export default function UserDashboard() {
       <UserFormModal
         isOpen={isModalOpen}
         editUser={editUser}
-        users={users}
         onClose={() => {
           setIsModalOpen(false);
           setEditUser(null);
         }}
         onSave={handleSaveUser}
       />
-
     </div>
   );
 }

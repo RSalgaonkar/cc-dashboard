@@ -1,20 +1,11 @@
-import { User, UserFormValues } from '../types/user';
+import { UserFormValues } from '../types/user';
 
 export type UserFormErrors = Partial<Record<keyof UserFormValues, string>>;
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-interface ValidateUserOptions {
-  existingUsers?: User[];
-  editingUserId?: string | null;
-}
-
-export function validateUser(
-  values: UserFormValues,
-  options: ValidateUserOptions = {}
-): UserFormErrors {
+export function validateUser(values: UserFormValues): UserFormErrors {
   const errors: UserFormErrors = {};
-  const normalizedEmail = values.email.trim().toLowerCase();
 
   if (!values.name.trim()) {
     errors.name = 'Name is required';
@@ -22,18 +13,8 @@ export function validateUser(
 
   if (!values.email.trim()) {
     errors.email = 'Email is required';
-  } else if (!emailRegex.test(normalizedEmail)) {
+  } else if (!emailRegex.test(values.email)) {
     errors.email = 'Enter a valid email address';
-  } else {
-    const duplicateUser = options.existingUsers?.find((user) => {
-      const isSameEmail = user.email.trim().toLowerCase() === normalizedEmail;
-      const isDifferentUser = user.id !== options.editingUserId;
-      return isSameEmail && isDifferentUser;
-    });
-
-    if (duplicateUser) {
-      errors.email = 'This email is already assigned to another user';
-    }
   }
 
   if (!values.role) {
