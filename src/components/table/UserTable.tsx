@@ -9,13 +9,10 @@ interface UserTableProps {
 }
 
 export default function UserTable({ users, onEdit }: UserTableProps) {
-  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
   const toggleRow = (userId: string) => {
-    setExpandedRows((prev) => ({
-      ...prev,
-      [userId]: !prev[userId],
-    }));
+    setExpandedUserId((prev) => (prev === userId ? null : userId));
   };
 
   if (users.length === 0) {
@@ -43,7 +40,7 @@ export default function UserTable({ users, onEdit }: UserTableProps) {
 
         <tbody>
           {users.map((user) => {
-            const isExpanded = !!expandedRows[user.id];
+            const isExpanded = expandedUserId === user.id;
 
             return (
               <Fragment key={user.id}>
@@ -61,19 +58,10 @@ export default function UserTable({ users, onEdit }: UserTableProps) {
                       }
                       title={isExpanded ? 'Collapse details' : 'Expand details'}
                     >
-                      <span className={`expand-icon ${isExpanded ? 'expanded' : ''}`}>
-                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                          <path
-                            d="M5 7.5L10 12.5L15 7.5"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </span>
+                      {isExpanded ? '−' : '+'}
                     </button>
                   </td>
+
                   <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td>{user.role}</td>
