@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { mockUsers } from '../../data/mockUsers';
 import { User, UserFormValues } from '../../types/user';
-import { Taxi } from '../../types/taxi';
+// import { Taxi } from '../../types/taxi';
 import { Hotel } from '../../types/hotel';
 import { AlcoholProduct } from '../../types/alcohol';
 import UserToolbar from '../toolbar/UserToolbar';
@@ -9,7 +9,7 @@ import UserTable from '../table/UserTable';
 import UserFormModal from '../form/UserFormModal';
 import UserAnalytics from '../analytics/UserAnalytics';
 import useThrottle from '../../hooks/useThrottle';
-import { mockTaxis } from '../../data/mockTaxis';
+// import { mockTaxis } from '../../data/mockTaxis';
 import { mockHotels } from '../../data/mockHotels';
 import { mockAlcoholProducts } from '../../data/mockAlcohol';
 import TaxiSection from '../taxi/TaxiSection';
@@ -27,13 +27,13 @@ export default function UserDashboard() {
   const [editUser, setEditUser] = useState<User | null>(null);
 
   const [hotelSearch, setHotelSearch] = useState('');
-  const [taxiSearch, setTaxiSearch] = useState('');
+  // const [taxiSearch, setTaxiSearch] = useState('');
   const [alcoholSearch, setAlcoholSearch] = useState('');
 
   const throttledSearchTerm = useThrottle(searchTerm, 350);
-  const throttledTaxiSearch = useThrottle(taxiSearch, 300);
+  // const throttledTaxiSearch = useThrottle(taxiSearch, 300);
   const throttledHotelSearch = useThrottle(hotelSearch, 300);
-  const throttledAlcoholSearch = useThrottle(alcoholSearch, 300);
+  // const throttledAlcoholSearch = useThrottle(alcoholSearch, 300);
 
   const filteredUsers = useMemo(() => {
     const normalizedSearch = throttledSearchTerm.trim().toLowerCase();
@@ -52,42 +52,42 @@ export default function UserDashboard() {
       });
     }, [users, throttledSearchTerm, selectedRole, selectedStatus]);
 
-    const getTaxiSearchText = (taxi: Taxi) => {
-    const possibleValues = [
-      (taxi as any).driverName,
-      (taxi as any).vehicleNumber,
-      (taxi as any).vehicleType,
-      (taxi as any).name,
-      (taxi as any).number,
-      (taxi as any).type,
-      (taxi as any).status,
+    // const getTaxiSearchText = (taxi: Taxi) => {
+    //   const possibleValues = [
+    //     (taxi as any).driverName,
+    //     (taxi as any).vehicleNumber,
+    //     (taxi as any).vehicleType,
+    //     (taxi as any).name,
+    //     (taxi as any).number,
+    //     (taxi as any).type,
+    //     (taxi as any).status,
 
-      (taxi as any).driver?.name,
-      (taxi as any).driver?.fullName,
+    //     (taxi as any).driver?.name,
+    //     (taxi as any).driver?.fullName,
 
-      (taxi as any).vehicle?.number,
-      (taxi as any).vehicle?.registrationNumber,
-      (taxi as any).vehicle?.type,
-      (taxi as any).vehicle?.model,
+    //     (taxi as any).vehicle?.number,
+    //     (taxi as any).vehicle?.registrationNumber,
+    //     (taxi as any).vehicle?.type,
+    //     (taxi as any).vehicle?.model,
 
-      (taxi as any).location?.address,
-      (taxi as any).location?.area,
-      (taxi as any).location?.city,
-      (taxi as any).location?.state,
-      (taxi as any).location?.name,
-    ];
+    //     (taxi as any).location?.address,
+    //     (taxi as any).location?.area,
+    //     (taxi as any).location?.city,
+    //     (taxi as any).location?.state,
+    //     (taxi as any).location?.name,
+    //   ];
 
-    return possibleValues.filter(Boolean).join(' ').toLowerCase();
-  };
+    //   return possibleValues.filter(Boolean).join(' ').toLowerCase();
+    // };
 
-  const filteredTaxis = useMemo(() => {
-    const query = throttledTaxiSearch.trim().toLowerCase();
+  // const filteredTaxis = useMemo(() => {
+  //   const query = throttledTaxiSearch.trim().toLowerCase();
 
-    return mockTaxis.filter((taxi: Taxi) => {
-      if (!query) return true;
-      return getTaxiSearchText(taxi).includes(query);
-    });
-  }, [throttledTaxiSearch]);
+  //   return mockTaxis.filter((taxi: Taxi) => {
+  //     if (!query) return true;
+  //     return getTaxiSearchText(taxi).includes(query);
+  //   });
+  // }, [throttledTaxiSearch]);
 
   const filteredHotels = useMemo(() => {
     const query = throttledHotelSearch.trim().toLowerCase();
@@ -103,10 +103,11 @@ export default function UserDashboard() {
     });
   }, [throttledHotelSearch]);
 
+
   const filteredAlcoholProducts = useMemo(() => {
     const query = alcoholSearch.trim().toLowerCase();
 
-    return mockAlcoholProducts.filter((item) => {
+    return mockAlcoholProducts.filter((item: AlcoholProduct) => {
       if (!query) return true;
 
       return (
@@ -116,6 +117,7 @@ export default function UserDashboard() {
       );
     });
   }, [alcoholSearch]);
+
 
   const handleAddUser = () => {
     setEditUser(null);
